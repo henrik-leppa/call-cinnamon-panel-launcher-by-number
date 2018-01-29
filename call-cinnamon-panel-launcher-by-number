@@ -1,0 +1,121 @@
+#! /usr/bin/env python3
+
+"""
+Call Cinnamon Panel Launcher By Number v2017-11-22
+
+Copyright © 2017 Henrik Franciscus Leppä
+
+* * *
+
+Call a panel launcher by number in the Cinnamon desktop environment.
+
+Panel launcher numbering starts at 1.
+
+Usage: call-cinnamon-panel-launcher-by-number <launcher_number>
+   or: call-cinnamon-panel-launcher-by-number [--help|--version|-H|-h|-?|-V|-v]
+
+Options:
+  --help, -H, -h, -?
+      Print this help message.
+  --version, -V, -v
+      Print version and copyright information.
+  <launcher_number>
+      Number of the launcher you want to start. Must be a positive integer.
+"""
+
+
+# TODO: Add exits: no json, no .desktop, no exec (maybe).
+# TODO: Add way to setup (and remove) keyboard shortcuts from dconf (maybe).
+
+
+import argparse
+import configparser
+import json
+import os
+import re
+import shlex
+import subprocess
+import sys
+
+
+_DOCSTRING_PARTS = __doc__.split("* * *")
+_VERSION_STRING = _DOCSTRING_PARTS[0].strip()
+_HELP_STRING = _DOCSTRING_PARTS[1].strip()
+
+__version__ = re.split(r"\s", _VERSION_STRING)[2]
+__author__ = "Henrik Franciscus Leppä"
+__date__ = __version__[1:]
+
+_NUMBER_NOT_POSITIVE_INTEGER_ERROR_TEXT = """
+<launcher_number> was not a positive integer (greater than 0)! Instead was: {0}.
+"""
+_NO_ARGUMENTS_ERROR_TEXT = "No arguments given. One argument should be given."
+_SEE_HELP_TEXT = "Use '--help' option to see all valid arguments."
+_SHORTCUT_NOT_ASSIGNED_ERROR_TEXT = "No shortcut assigned for {0}!"
+
+# [See sysexits.h](https://www.freebsd.org/cgi/man.cgi?query=sysexits&sektion=3)
+EX_USAGE = 64
+EX_UNAVAILABLE = 69
+
+
+def main():
+    parser = _ArgumentParser(add_help=False)
+    parser.add_argument("--version", "-V", "-v", action="store_true")
+    parser.add_argument("--help", "-H", "-h", "-?", action="store_true")
+    parser.add_argument("<launcher_number>", nargs="?")
+    args = parser.parse_args()
+    launcher_number_string = getattr(args, "<launcher_number>")
+
+    if args.help:
+        print(_HELP_STRING + "\n")
+    elif args.version:
+        print(_VERSION_STRING + "\n")
+    elif launcher_number_string == None:
+        parser.error(_NO_ARGUMENTS_ERROR_TEXT)
+    elif re.search(r"^[1-9][0-9]*$", launcher_number_string) == None:
+        parser.error(
+            _NUMBER_NOT_POSITIVE_INTEGER_ERROR_TEXT
+                .strip()
+                .format(launcher_number_string)
+        )
+    else:
+        launcher_number = int(launcher_number_string)
+        launcher_index = launcher_number - 1
+
+        config_path = "~/.cinnamon/configs/panel-launchers@cinnamon.org/3.json"
+
+        with open(os.path.expanduser(config_path)) as config_file:
+            config = json.load(config_file)
+            launchers = config["launcherList"]["value"]
+            if launcher_index < 0 or len(launchers) <= launcher_index:
+                parser.exit(
+                    EX_UNAVAILABLE,
+                    _SHORTCUT_NOT_ASSIGNED_ERROR_TEXT.format(launcher_number)
+                        + "\n",
+                )
+            launcher_filename = launchers[launcher_index]
+
+        custom_launcher_pattern = r"cinnamon-custom-launcher-[0-9]+\.desktop"
+
+        if re.search(custom_launcher_pattern, launcher_filename) != None:
+            launcher_path = "~/.cinnamon/panel-launchers/" + launcher_filename
+        else:
+            launcher_path = "/usr/share/applications/" + launcher_filename
+
+        config = configparser.ConfigParser(
+            interpolation=None # Needed for field codes, like: `firefox %u`.
+        )
+        config.read(os.path.expanduser(launcher_path))
+        command = config["Desktop Entry"]["exec"]
+        command_without_field_codes = re.sub(r"%.", r"", command)
+        arguments = shlex.split(command_without_field_codes)
+        subprocess.call(arguments)
+
+
+class _ArgumentParser(argparse.ArgumentParser):
+    def error(self, message):
+        self.exit(EX_USAGE, '{0}\n\n{1}\n\n'.format(message, _SEE_HELP_TEXT))
+
+
+if __name__ == "__main__":
+    main()
