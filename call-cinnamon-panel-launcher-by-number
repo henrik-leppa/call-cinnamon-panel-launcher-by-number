@@ -1,9 +1,13 @@
 #! /usr/bin/env python3
 
 """
-Call Cinnamon Panel Launcher By Number v2017-11-22
+Call Cinnamon Panel Launcher By Number 1.0.0
 
 Copyright © 2017 Henrik Franciscus Leppä
+
+This is free software. You may redistribute copies of it under the terms of the
+MIT License <https://opensource.org/licenses/MIT>. There is NO WARRANTY, to the
+extent permitted by law.
 
 * * *
 

@@ -1,5 +1,5 @@
-call-cinnamon-panel-launcher-by-number
-======================================
+Call Cinnamon Panel Launcher By Number 1.0.0
+============================================
 
 Call a panel launcher by number in the Cinnamon desktop environment.
 
@@ -11,7 +11,7 @@ Setting Up Shortcuts
 
 You can set up shorcuts that use this to open panel items using the
 "Super key"/"Windows key", like this:
-1. Extract the script to `/home/username/bin/`.
+1. Copy the script to `/home/username/bin/`.
    - (Create the bin directory if it does not exist.)
 2. Make the script executable.
 3. Open Keyboard settings.
