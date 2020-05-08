@@ -1,9 +1,9 @@
 #! /usr/bin/env python3
 
 """
-Call Cinnamon Panel Launcher By Number 1.0.0
+Call Cinnamon Panel Launcher By Number 1.0.1
 
-Copyright © 2017 Henrik Franciscus Leppä
+Copyright © 2017--2020 Henrik Franciscus Leppä
 
 This is free software. You may redistribute copies of it under the terms of the
 MIT License <https://opensource.org/licenses/MIT>. There is NO WARRANTY, to the
@@ -16,7 +16,8 @@ Call a panel launcher by number in the Cinnamon desktop environment.
 Panel launcher numbering starts at 1.
 
 Usage: call-cinnamon-panel-launcher-by-number <launcher_number>
-   or: call-cinnamon-panel-launcher-by-number [--help|--version|-H|-h|-?|-V|-v]
+   or: call-cinnamon-panel-launcher-by-number (--help | -H | -h | -?)
+   or: call-cinnamon-panel-launcher-by-number (--version | -V | -v)
 
 Options:
   --help, -H, -h, -?
@@ -34,6 +35,7 @@ Options:
 
 import argparse
 import configparser
+import glob
 import json
 import os
 import re
@@ -86,9 +88,11 @@ def main():
         launcher_number = int(launcher_number_string)
         launcher_index = launcher_number - 1
 
-        config_path = "~/.cinnamon/configs/panel-launchers@cinnamon.org/3.json"
+        config_path = "~/.cinnamon/configs/panel-launchers@cinnamon.org/*.json"
+        list_of_files = glob.glob(os.path.expanduser(config_path))
+        latest_file = max(list_of_files, key=os.path.getctime)
 
-        with open(os.path.expanduser(config_path)) as config_file:
+        with open(os.path.expanduser(latest_file)) as config_file:
             config = json.load(config_file)
             launchers = config["launcherList"]["value"]
             if launcher_index < 0 or len(launchers) <= launcher_index:

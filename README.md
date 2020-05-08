@@ -1,4 +1,4 @@
-Call Cinnamon Panel Launcher By Number 1.0.0
+Call Cinnamon Panel Launcher By Number 1.0.1
 ============================================
 
 Call a panel launcher by number in the Cinnamon desktop environment.
@@ -33,7 +33,11 @@ call-cinnamon-panel-launcher-by-number <launcher_number>
 ```
 or:
 ```
-call-cinnamon-panel-launcher-by-number [--help|--version|-H|-h|-?|-V|-v]
+call-cinnamon-panel-launcher-by-number (--help | -H | -h | -?)
+```
+or:
+```
+call-cinnamon-panel-launcher-by-number (--version | -V | -v)
 ```
 
 ### Options
